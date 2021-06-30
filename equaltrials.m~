@@ -1,0 +1,67 @@
+% Author: Carter Luck
+% Richard Addante's Lab, Florida Tech
+
+function equaltrials(EEG)
+
+% This is the data structure for our event codes. It's a 1xN matrix where N
+% is the number of event code "types" (we are performing the algorithm
+% several times with different event codes). Each element is a map with two
+% key-value pairs (although there could be more if desired). 'old' maps to
+% an array containing all event codes of the first group and 'new' maps to
+% an array containing all event coedes of the second group. Their names are
+% unimportant, but it may help to have descriptive names. Note that the
+% algorithm will equalize within a given type and across groups within that
+% type.
+eventCodeArray = [containers.Map({['old' 'new'],[[6111 6112 6113 6114 6115 6511 6512 6513 6514 6515],...
+    [6311 6312 6313 6314 6315]]}) containers.Map({['old' 'new'],[[6121 6122 6123 6124 6125 6521 6522 ...
+    6523 6524 6525] [6321 6322 6323 6324 6325]]}) containers.Map({['old' 'new'],[[6131 6132 6133 6134 ...
+    6135 6531 6532 6533 6534 6535], [6331 6332 6333 6334 6335]]}) containers.Map({['old' 'new'],...
+    [[6141 6142 6143 6144 6145 6541 6542 6543 6544 6545], [6341 6342 6343 6344 6345]]})...
+    containers.Map({['old' 'new'],[[6151 6152 6153 6154 6155 6551 6552 6553 6554 6555],...
+    [6351 6352 6353 6354 6355]]})];
+
+% iterate through types
+for eventCodeIndex = 1:length(eventCodeArray)
+    % get related event code map
+    eventCode = eventCodeArray(eventCodeIndex);
+    % create "empty" map that will take keys to vectors containing events
+    % with event codes that corrospond to the key as defined in
+    % eventCodeIndex
+    eventMap = containers.Map({eventCode.keys,zeros(length(eventCode.keys))});
+    % iterate through all events
+    for eventIndex = 1:length(EEG.event)
+        % determine which key, if any, the given event maps to within the
+        % type
+        for keyIndex = 1:length(eventCode.keys)
+            key = eventCode.keys{keyIndex};
+            if ismember(EEG.event(eventIndex).type,eventCode(key))
+                % append event to the vector in eventMap
+                eventMap(key) = [eventMap(key) EEG.event(eventIndex)];
+            end
+        end
+    end
+    % remove extraneous zero at beginning of every vector
+    for i = 1:length(eventMap.keys)
+        temp = eventMap(eventMap.keys(i));
+        temp(1) = [];
+        eventMap(eventMap.keys(i)) = temp;
+    end
+    
+    % find minimum number of events
+    min = length(eventMap.values(1));
+    for i = 1:length(eventMap.keys)
+         if length(eventMap(eventMap.keys(i))) < min
+             min = length(eventMap(eventMap.keys(i)));
+         end
+    end
+    
+    % select random trials
+    selected = [];
+    for i = 1:length(eventMap.keys)
+        allEvents = eventMap(eventMap.keys(i));
+        permutation = randperm(min);
+        selected = [selected allEvents(permutat
+    end
+end
+
+end 
